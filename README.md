@@ -12,6 +12,16 @@ If this simple packaging methods help you, feel free to use ProjectWorkflow.
 
 Of course, comments and patches are welcomed, but be aware that this project is an experiment and my lack of spare time.
 
+### Related
+- [Modern CMake Packaging: A Guide
+Or, A Candle in the Dark](https://blog.vito.nyc/posts/cmake-pkg/)
+- [cmake-packages(7)](https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html#creating-packages)
+- [install(EXPORT) command](https://cmake.org/cmake/help/latest/command/install.html#export)
+- [CMakePackageConfigHelpers module](https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html)
+- [install(FILES) command](https://cmake.org/cmake/help/latest/command/install.html#files)
+- [Installing a Config.cmake file](https://www.f-ax.de/dev/2020/10/07/cmake-config-package.html)
+- [CMakeFindDependencyMacro module](https://cmake.org/cmake/help/latest/module/CMakeFindDependencyMacro.html)
+
 ## How to use ProjectWorkflow
 
 To use this module simply copy cmake directory to your project and add 
