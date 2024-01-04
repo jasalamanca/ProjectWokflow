@@ -4,11 +4,11 @@ cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-macro(set_or_default_ var_ valueVar_ defaultVar_)
+macro(set_or_default_ var_ valueVar_ default_)
     if (DEFINED ${valueVar_})
         set(${var_} ${${valueVar_}})
     else()
-        set(${var_} ${${defaultVar_}})
+        set(${var_} ${default_})
     endif()
 endmacro()
 
@@ -48,7 +48,7 @@ endfunction()
 # Install a simple package config file, it version file and all the exports and targets
 function(PW_install)
     set(options_ )
-    set(oneValueArgs_ PACKAGE VERSION)
+    set(oneValueArgs_ PACKAGE VERSION NAMESPACE)
     set(multiValueArgs_ EXPORTS)
     cmake_parse_arguments(PWI "${options_}" "${oneValueArgs_}" "${multiValueArgs_}" ${ARGN})
 
@@ -64,7 +64,8 @@ function(PW_install)
         message(AUTHOR_WARNING "PW_install without exports")
     endif()
 
-    set_or_default_(packageVersion_ PWI_VERSION PROJECT_VERSION)
+    set_or_default_(packageVersion_ PWI_VERSION "${PROJECT_VERSION}")
+    set_or_default_(packageNamespace_ PWI_NAMESPACE "${PWI_PACKAGE}::")
 
     # Prepare cmake scripts destination
     # From GnuInstallDirs
@@ -72,7 +73,10 @@ function(PW_install)
     message(TRACE "Writing to ${PW_INSTALL_SCRIPTDIR}")
 
     foreach(export_ ${PWI_EXPORTS})
-        install(EXPORT ${export_} FILE ${export_}.cmake DESTINATION ${PW_INSTALL_SCRIPTDIR})
+        install(EXPORT ${export_}
+            FILE ${export_}.cmake
+            NAMESPACE ${packageNamespace_}
+            DESTINATION ${PW_INSTALL_SCRIPTDIR})
     endforeach()
 
     set(config_file_ "${CMAKE_CURRENT_BINARY_DIR}/${PWI_PACKAGE}Config.cmake")

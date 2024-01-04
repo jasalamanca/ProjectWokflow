@@ -27,14 +27,18 @@ to your CMakeLists.txt
 
 ### PW_install(PACKAGE)
 
-> PW_install(PACKAGE <pkg_name> [VERSION \<version>] [EXPORTS <export_name> ... ])
+> PW_install(PACKAGE <pkg_name> 
+>   [VERSION \<version>] 
+>   [NAMESPACE \<namespace>]
+>   [EXPORTS <export_name> ... ])
 
 PW_install(PACKAGE) generates targets export files, package config file and a package version file in a coherent manner.
 Apply common parameters to install(EXPORT), configure_package_config_file and install(FILES) typical sequence of commands.
 Also generates a stereotypical input file for configure_package_config_file, avoiding this boilerplate.
 
 - **PACKAGE** Introduces the package name.
-- **VERSION** Establishes package version. If not set, <pkg_name>_VERSION is used.
+- **VERSION** Sets package version. If not set, <pkg_name>_VERSION is used.
+- **NAMESPACE** Sets package namespace. If not set, *<pkg_name>::* is used.
 - **EXPORTS** For each <export_name> indicated, a target export file is generated and is included with the necessary path.
 
 PW_install(PACKAGE) will generate:

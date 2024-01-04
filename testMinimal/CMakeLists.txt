@@ -11,5 +11,5 @@ add_executable(MinimalTest)
 target_sources(MinimalTest
     PRIVATE
     minimal_test.c)
-target_link_libraries(MinimalTest PRIVATE a)
+target_link_libraries(MinimalTest PRIVATE LIBA::a)
 install(TARGETS MinimalTest)
