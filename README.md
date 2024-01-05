@@ -6,7 +6,7 @@ A CMake module to ease package config file creation
 
 Main motivation to write this CMake module is to automate very common patterns when creating packages.
 
-Obviously this is a very simple and incomplete module. Mainly because packages is a complex subject and also because is not my purpouse to write a complete module for everybody.
+Obviously this is a very simple and incomplete module. Mainly because packaging is a complex subject and also because is not my purpose to write a complete module for everybody.
 
 If this simple packaging methods help you, feel free to use ProjectWorkflow.
 
