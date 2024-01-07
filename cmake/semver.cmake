@@ -32,7 +32,7 @@ function(semver_write_version_config filename)
 #   project(MyProject VERSION 1.2.3)
 #   set(MyProject_VERSION \"1.2.3-alpha+build3\")
 #
-# Prerelease versions cannot be passed in directly via the find_package command,
+# Semver versions cannot be passed in directly via the find_package command,
 # so you must define \${PACKAGE_FIND_NAME}_FIND_SEMVER_VERSION before find_package
 # example (to locate version \"1.2.3-alpha+build3\")
 #   set(OtherProject_FIND_SEMVER_VERSION \"1.2.3-alpha+build3\")

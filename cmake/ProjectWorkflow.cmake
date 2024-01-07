@@ -70,7 +70,7 @@ function(PW_install)
         set(PWI_COMPATIBILITY "Semver")
     endif()
 
-    set_or_default_(packageVersion_ PWI_VERSION "${PROJECT_VERSION}")
+    set_or_default_(packageVersion_ PWI_VERSION "${${PROJECT_NAME}_VERSION}")
     set_or_default_(packageNamespace_ PWI_NAMESPACE "${PWI_PACKAGE}::")
 
     # Prepare cmake scripts destination
