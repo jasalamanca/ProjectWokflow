@@ -65,17 +65,17 @@ If you want to use semver versions remember:
 ```
 example
     project(MyProject VERSION 1.2.3)
-    set(MyProject_VERSION \"1.2.3-alpha+build3\")
+    set(MyProject_VERSION "1.2.3-alpha+build3")
 ```
 
 - You can pass VERSION parameter to *PW_install* or *semver_write_version_config* commands if you need to change version on generated configuration files.
 - You MUST set <PACKAGE_NAME>_FIND_SEMVER_VERSION before calling *find_package* command, because semver versions cannot be passed in directly via the *find_package* command.
 ```
-example (to locate version \"1.2.3-alpha+build3\")
-   set(OtherProject_FIND_SEMVER_VERSION \"1.2.3-alpha+build3\")
+example (to locate version "1.2.3-alpha+build3")
+   set(OtherProject_FIND_SEMVER_VERSION "1.2.3-alpha+build3")
    find_package(OtherProject 1.2.3)
- example (to locate range \"1.2.3-alpha+build3...<2\")
-   set(OtherProject_FIND_SEMVER_VERSION \"1.2.3-alpha+build3...<2\")
+ example (to locate range "1.2.3-alpha+build3...<2")
+   set(OtherProject_FIND_SEMVER_VERSION "1.2.3-alpha+build3...<2")
    find_package(OtherProject 1.2.3...<2)
 ```
 
