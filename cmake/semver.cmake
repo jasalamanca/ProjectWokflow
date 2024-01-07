@@ -50,40 +50,42 @@ set(PACKAGE_VERSION_COMPATIBLE FALSE)
 set(PACKAGE_VERSION_EXACT FALSE)
 
 # include semver tools that must be ready available
-include(./semver.cmake)
+include(\"\${CMAKE_CURRENT_LIST_DIR}/semver.cmake\")
 
-# Semver version file generated for ${PROJECT_NAME} version ${${PROJECT_NAME}_VERSION}
-set(PACKAGE_VERSION \"${${PROJECT_NAME}_VERSION}\")
+# Semver version file generated for ${PROJECT_NAME} version ${SV_VERSION}
+set(PACKAGE_VERSION \"${SV_VERSION}\")
 
 # Update PACKAGE_FIND_VERSION and PACKAGE_FIND_VERSION_COMPLETE for completeness
-set(PACKAGE_FIND_VERSION \"\${\${PACKAGE_NAME}_FIND_SEMVER_VERSION}\")
-set(PACKAGE_FIND_VERSION_COMPLETE \"\${\${PACKAGE_NAME}_FIND_SEMVER_VERSION}\")
+set(PACKAGE_FIND_VERSION \"\${\${PACKAGE_FIND_NAME}_FIND_SEMVER_VERSION}\")
+set(PACKAGE_FIND_VERSION_COMPLETE \"\${\${PACKAGE_FIND_NAME}_FIND_SEMVER_VERSION}\")
 
 # Checking version
 if(NOT PACKAGE_FIND_VERSION)
-  # If no version specified accept this one
-  set(PACKAGE_VERSION_COMPATIBLE TRUE)
+    # If no version specified accept this one
+    set(PACKAGE_VERSION_COMPATIBLE TRUE)
 else()
     semver_maches(\${PACKAGE_VERSION} \${PACKAGE_FIND_VERSION} matches_ exact_)
-    if(PACKAGE_VERSION MATCHES [[0\..*]] AND NOT exact_)
+    if(PACKAGE_VERSION MATCHES [[^0\\..*]] AND NOT exact_)
         # If major version is 0 only exact search must be done.
         set(matches_ FALSE)
     endif()
     set(PACKAGE_VERSION_COMPATIBLE \${matches_})
     set(PACKAGE_VERSION_EXACT \${exact_})
 endif()
+")
 
-# check that the installed version has the same 32/64bit-ness as the one which is currently searching
-if(CMAKE_SIZEOF_VOID_P STREQUAL \"\")
-  # if the installed or the using project don't have CMAKE_SIZEOF_VOID_P set, ignore it
-  return()
-elseif(NOT CMAKE_SIZEOF_VOID_P STREQUAL \"${CMAKE_SIZEOF_VOID_P}\")
-  math(EXPR installedBits_ \"${CMAKE_SIZEOF_VOID_P} * 8\")
-  set(PACKAGE_VERSION \"\${PACKAGE_VERSION} (\${installedBits}bit)\")
-  set(PACKAGE_VERSION_UNSUITABLE TRUE)
-endif()
+# local eval for word size
+if(CMAKE_SIZEOF_VOID_P)
+  math(EXPR installedBits_ "${CMAKE_SIZEOF_VOID_P} * 8")
+  string(APPEND content_
 "
-)
+# check that the installed version has the same 32/64bit-ness as the one which is currently searching
+if(CMAKE_SIZEOF_VOID_P AND NOT CMAKE_SIZEOF_VOID_P STREQUAL \"${CMAKE_SIZEOF_VOID_P}\")
+    set(PACKAGE_VERSION \"\${PACKAGE_VERSION} (${installedBits_}bit)\")
+    set(PACKAGE_VERSION_UNSUITABLE TRUE)
+endif()
+")
+endif()
 
 file(WRITE ${filename} ${content_})
 endfunction()
