@@ -74,7 +74,7 @@ example
 example (to locate version "1.2.3-alpha+build3")
    set(OtherProject_FIND_SEMVER_VERSION "1.2.3-alpha+build3")
    find_package(OtherProject 1.2.3)
- example (to locate range "1.2.3-alpha+build3...<2")
+example (to locate range "1.2.3-alpha+build3...<2")
    set(OtherProject_FIND_SEMVER_VERSION "1.2.3-alpha+build3...<2")
    find_package(OtherProject 1.2.3...<2)
 ```
