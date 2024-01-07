@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(semver)
 
 macro(set_or_default_ var_ valueVar_ default_)
     if (DEFINED ${valueVar_})
@@ -48,7 +49,7 @@ endfunction()
 # Install a simple package config file, it version file and all the exports and targets
 function(PW_install)
     set(options_ )
-    set(oneValueArgs_ PACKAGE VERSION NAMESPACE)
+    set(oneValueArgs_ PACKAGE VERSION NAMESPACE COMPATIBILITY)
     set(multiValueArgs_ EXPORTS)
     cmake_parse_arguments(PWI "${options_}" "${oneValueArgs_}" "${multiValueArgs_}" ${ARGN})
 
@@ -62,6 +63,11 @@ function(PW_install)
 
     if (NOT PWI_EXPORTS)
         message(AUTHOR_WARNING "PW_install without exports")
+    endif()
+
+    if (NOT PWI_COMPATIBILITY)
+        message(STATUS "PW_install for package ${PWI_PACKAGE} without version compatibility. Semver by default.")
+        set(PWI_COMPATIBILITY "Semver")
     endif()
 
     set_or_default_(packageVersion_ PWI_VERSION "${PROJECT_VERSION}")
@@ -86,8 +92,19 @@ function(PW_install)
     configure_package_config_file(${config_file_in_} ${config_file_}
         INSTALL_DESTINATION ${PW_INSTALL_SCRIPTDIR})
 
-    # PATH_VARS INCLUDE_PCH_DIR SYSCONFIG_PCH_DIR)
+    set(config_version_file_ "${CMAKE_CURRENT_BINARY_DIR}/${PWI_PACKAGE}ConfigVersion.cmake")
+    if("Semver" STREQUAL PWI_COMPATIBILITY)
+        set(version_files_ "${config_version_file_}"
+            "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/semver.cmake") # relative to this file
+        semver_write_version_config("${config_version_file_}"
+            VERSION "${packageVersion_}")
+    else()
+        set(version_files_ "${config_version_file_}")
+        write_basic_package_version_file("${config_version_file_}"
+            VERSION "${packageVersion_}"
+            COMPATIBILITY "${PWI_COMPATIBILITY}")
+    endif()
 
-    install(FILES ${config_file_}
+    install(FILES "${config_file_}" ${version_files_}
         DESTINATION ${PW_INSTALL_SCRIPTDIR})
 endfunction()
