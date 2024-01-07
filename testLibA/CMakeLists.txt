@@ -8,6 +8,8 @@ project(PWLibA VERSION 0.0.0
     DESCRIPTION "Library without dependencies that exports it package"
     HOMEPAGE_URL "https://github.com/jasalamanca/ProjectWokflow.git")
 
+set(PWLibA_VERSION "0.0.0-rc0")
+
 include(GNUInstallDirs)
 include(ProjectWorkflow)
 
