@@ -6,6 +6,7 @@ project(PW VERSION 0.0.0
     HOMEPAGE_URL "https://github.com/jasalamanca/ProjectWokflow.git")
 
 add_custom_target(PWSources SOURCES
+    CHANGELOG.md
     README.md
     LICENSE
     cmake/ProjectWorkflow.cmake

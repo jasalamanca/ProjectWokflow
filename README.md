@@ -25,6 +25,7 @@ Or, A Candle in the Dark](https://blog.vito.nyc/posts/cmake-pkg/)
 - [Support for version suffixes](https://gitlab.kitware.com/cmake/cmake/-/issues/16716)
 - [find_package command](https://cmake.org/cmake/help/latest/command/find_package.html)
 - [write_basic_package_version_file command](https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html#command:write_basic_package_version_file)
+- [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## How to use ProjectWorkflow
 
