@@ -47,7 +47,8 @@ PW_install(
     [VERSION \<version>]
     [COMPATIBILITY <Semver|AnyNewerVersion|SameMajorVersion|SameMinorVersion|ExactVersion>]
     [NAMESPACE \<namespace>]
-    [EXPORTS <export_name> ... ])
+    [EXPORTS <export_name> ... ]
+    [PACKAGES <pkg_name> ... ])
 ```
 
 PW_install(PACKAGE) generates targets export files, package config file and a package version file in a coherent manner.
@@ -89,6 +90,7 @@ Parameters:
   
 - **NAMESPACE** Sets package namespace. If not set, *<pkg_name>::* is used.
 - **EXPORTS** For each <export_name> indicated, a target export file is generated and is included with the necessary path.
+- **PACKAGES** For each <pkg_name> indicated, a *find_package* is included in configuration file, with necessary parameters.
 
 PW_install(PACKAGE) will generate:
 - *<pkg_name>Config.cmake*
