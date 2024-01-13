@@ -156,7 +156,7 @@ check_semver_preOrder_("17.0" "17.0" "0")
 
 
 function(check_semver_matches_ version spec checkMatch checkExact)
-    semver_maches("${version}" "${spec}" match_ exact_)
+    semver_matches("${version}" "${spec}" match_ exact_)
     if((NOT match_ AND checkMatch) OR (match_ AND NOT checkMatch))
         if(match_)
             message(FATAL_ERROR "'${version}' IN '${spec}' !!!")

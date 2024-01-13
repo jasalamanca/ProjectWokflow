@@ -65,7 +65,7 @@ if(NOT PACKAGE_FIND_VERSION)
     # If no version specified accept this one
     set(PACKAGE_VERSION_COMPATIBLE TRUE)
 else()
-    semver_maches(\${PACKAGE_VERSION} \${PACKAGE_FIND_VERSION} matches_ exact_)
+    semver_matches(\${PACKAGE_VERSION} \${PACKAGE_FIND_VERSION} matches_ exact_)
     if(PACKAGE_VERSION MATCHES [[^0\\..*]] AND NOT exact_)
         # If major version is 0 only exact search must be done.
         set(matches_ FALSE)
@@ -91,14 +91,18 @@ endif()
 file(WRITE ${filename} ${content_})
 endfunction()
 
-
-
-
-# Checks if version matches version specification.
-# A semver version follows <basic>[-<prerelease>][+<build_metadata>]
-# A cmake semver specification follows cmake ranges <semver_spec>[(...|...<)<semver_spec>]
-#   <semver_spec> ::=
-function(semver_maches version spec matches exact)
+# Checks if semver <version> matches semver version specification <spec>.
+# Sets <matches> according to the check and <exact> will be true if and only if <version> and <spec> represent the same semver version.
+#
+# A semver version follows
+#  <semver_version> ::= <basic>[-<prerelease>][+<build_metadata>]
+#
+# A cmake semver specification follows cmake ranges specification
+#  <semver_range> ::= <semver_spec>[(...|...<)<semver_spec>]
+#   <semver_spec> ::= <basic_spec>[-<prerelease>][+<build_metadata>]
+#    <basic_spec> ::= <number>[.<number>[.<number>]]
+#      Every missing <number> is substituted by 0 to form a version <basic> version.
+function(semver_matches version spec matches exact)
     semver_splitVersion_(${version} base_ pre_ build_ isValidVersion_)
     if (NOT isValidVersion_)
         message(AUTHOR_WARNING "\"${version}\" is an invalid semver version")
