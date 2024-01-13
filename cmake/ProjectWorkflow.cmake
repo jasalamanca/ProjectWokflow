@@ -109,14 +109,14 @@ function(PW_install)
 
     # Prepare cmake scripts destination
     # From GnuInstallDirs
-    set(PW_INSTALL_SCRIPTDIR "${CMAKE_INSTALL_LIBDIR}/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/${PWI_PACKAGE}-${packageVersion_}")
-    message(TRACE "Writing to ${PW_INSTALL_SCRIPTDIR}")
+    set(PW_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/${PWI_PACKAGE}")
+    message(TRACE "Writing to ${PW_INSTALL_CMAKEDIR}")
 
     foreach(export_ ${PWI_EXPORTS})
         install(EXPORT ${export_}
             FILE ${export_}.cmake
             NAMESPACE ${packageNamespace_}
-            DESTINATION ${PW_INSTALL_SCRIPTDIR})
+            DESTINATION ${PW_INSTALL_CMAKEDIR})
     endforeach()
 
     set(config_file_ "${CMAKE_CURRENT_BINARY_DIR}/${PWI_PACKAGE}Config.cmake")
@@ -124,7 +124,7 @@ function(PW_install)
 
     write_config_in_(${config_file_in_} ${ARGN})
     configure_package_config_file(${config_file_in_} ${config_file_}
-        INSTALL_DESTINATION ${PW_INSTALL_SCRIPTDIR})
+        INSTALL_DESTINATION ${PW_INSTALL_CMAKEDIR})
 
     set(config_version_file_ "${CMAKE_CURRENT_BINARY_DIR}/${PWI_PACKAGE}ConfigVersion.cmake")
     if("Semver" STREQUAL PWI_COMPATIBILITY)
@@ -140,5 +140,5 @@ function(PW_install)
     endif()
 
     install(FILES "${config_file_}" ${version_files_}
-        DESTINATION ${PW_INSTALL_SCRIPTDIR})
+        DESTINATION ${PW_INSTALL_CMAKEDIR})
 endfunction()
