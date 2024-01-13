@@ -142,6 +142,16 @@ function(semver_matches version spec matches exact)
     endif()
 endfunction()
 
+# If receives a semver version then returns base part, else returns full version received.
+function(semver_toCMakeVersion version_ version_cmake_)
+    semver_splitVersion_(${version_} base_ pre_ build_ valid_)
+    if(valid_)
+        set(version_cmake_ ${base_} PARENT_SCOPE)
+    else()
+        set(version_cmake_ ${version_} PARENT_SCOPE)
+    endif()
+endfunction()
+
 # Splits a semver version and check if it is valid.
 function(semver_splitVersion_ version base pre build isValidVer)
     # Separate base, prerelease and build metadata
