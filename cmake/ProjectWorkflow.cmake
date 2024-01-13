@@ -69,7 +69,13 @@ if(PWI_EXPORTS)
 
 # Include all exported targets
 foreach(export_ ${PWI_EXPORTS})
-    include(\"\${CMAKE_CURRENT_LIST_DIR}/\${export_}.cmake\")
+    set(export_filename_ \"\${CMAKE_CURRENT_LIST_DIR}/\${export_}.cmake\")
+    if(EXISTS \${export_filename_})
+        include(\"\${CMAKE_CURRENT_LIST_DIR}/\${export_}.cmake\")
+    else()
+        cmake_path(GET export_filename_ FILENAME export_filename_only_)
+        message(FATAL_ERROR \"Mandatory file \${export_filename_only_} for ${PWI_PACKAGE} package does not exists!\")
+    endif()
 endforeach()
 
 # Check all components found
