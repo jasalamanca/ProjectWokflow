@@ -216,3 +216,24 @@ check_semver_matches_("1.2.3-rc0.9" "1...<1.2-rc0.8" FALSE FALSE)
 check_semver_matches_("1.2.3-rc0.9" "1...<1.2-rc0.9" FALSE FALSE)
 check_semver_matches_("1.2.3-rc0.9" "1...1.2-rc0.9" FALSE FALSE)
 check_semver_matches_("1.2.3-rc0.9" "1...<1.2-rc0.10" FALSE FALSE)
+
+
+
+
+function(check_semver_validToCMakeSpec_ spec checkSpecCmake)
+    semver_validToCMakeSpec("${spec}" specCmake_)
+    if(NOT "${specCmake_}" STREQUAL "${checkSpecCmake}")
+        message(FATAL_ERROR "'${spec}' is transformed to '${specCmake_}' but '${checkSpecCmake}' !!!")
+    endif()
+endfunction()
+
+check_semver_validToCMakeSpec_("0" "0")
+check_semver_validToCMakeSpec_("1.2" "1.2")
+check_semver_validToCMakeSpec_("1.2.3" "1.2.3")
+check_semver_validToCMakeSpec_("1.2.3.4" "")
+check_semver_validToCMakeSpec_("1.2.3-rc0" "1.2.3")
+check_semver_validToCMakeSpec_("1.2.3+0000-" "1.2.3")
+check_semver_validToCMakeSpec_("1.2.3-rc0+0000-" "1.2.3")
+check_semver_validToCMakeSpec_("1.2.3-rc0.8...<2" "1.2.3...<2")
+check_semver_validToCMakeSpec_("1.2.3-rc0.8...2" "1.2.3...2")
+check_semver_validToCMakeSpec_("1.2.3-rc0.8...2+6frd" "1.2.3...2")
