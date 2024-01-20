@@ -152,6 +152,23 @@ function(semver_toCMakeVersion version_ version_cmake_)
     endif()
 endfunction()
 
+# If receives a semver specification then returns a CMake compatible transformation of a version search specification.
+# Else an empty string is returned.
+function(semver_validToCMakeSpec spec specCmake)
+    semver_splitSpec_(${spec} minBase_ minPre_ minBuild_ minClosed_ maxBase_ maxPre_ maxBuild_ maxClosed_ isValidSpec_)
+    if (isValidSpec_)
+        if(minBase_ STREQUAL maxBase_)
+            set(${specCmake} "${minBase_}" PARENT_SCOPE)
+        elseif(maxClosed_)
+            set(${specCmake} "${minBase_}...${maxBase_}" PARENT_SCOPE)
+        else()
+            set(${specCmake} "${minBase_}...<${maxBase_}" PARENT_SCOPE)
+        endif()
+    else()
+        set(${specCmake} "" PARENT_SCOPE)
+    endif()
+endfunction()
+
 # Splits a semver version and check if it is valid.
 function(semver_splitVersion_ version base pre build isValidVer)
     # Separate base, prerelease and build metadata

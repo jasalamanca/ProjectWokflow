@@ -49,7 +49,7 @@ ProjectWorkflow provides:
 PW_install(
     PACKAGE <pkg_name> 
     [VERSION <version>]
-    [COMPATIBILITY Semver|AnyNewerVersion|SameMajorVersion|SameMinorVersion|ExactVersion]
+    [COMPATIBILITY (Semver|AnyNewerVersion|SameMajorVersion|SameMinorVersion|ExactVersion)]
     [NAMESPACE <namespace>]
     [EXPORTS <export_name> ... ]
     [PACKAGES <pkg_name> ... ])
@@ -106,17 +106,22 @@ Parameters:
 [semver_write_version_config()](#semver_write_version_config)
 ```cmake
 semver_write_version_config(<filename>
-    [VERSION <version>])
+    [VERSION <semver_version>])
 ```
 
 [semver_matches](#semver_matches)
 ```cmake
-semver_matches(<version> <spec> <matches> <exact>)
+semver_matches(<semver_version> <semver_spec> <version_matches> <is_exact>)
 ```
 
 [semver_toCMakeVersion](#semver_toCMakeVersion)
 ```cmake
-semver_toCMakeVersion(<version> <version_cmake>)
+semver_toCMakeVersion(<semver_version> <version_cmake>)
+```
+
+[semver_validToCMakeSpec](#semver_validToCMakeSpec)
+```cmake
+semver_validToCMakeSpec(<semver_spec> <spec_cmake>)
 ```
 
 #### semver_write_version_config()
@@ -127,26 +132,39 @@ Parameters:
 - **VERSION** Sets package version. If not set, <PROJECT_NAME>_VERSION is used.
 
 #### semver_matches()
-Checks if semver <version> matches semver version specification <spec>.
+Checks if semver <semver_version> matches semver version specification <semver_spec>.
 
-Sets <matches> according to the check and <exact> will be true if and only if <version> and <spec> represent the same semver version.
+Sets <version_matches> according to the check and <is_exact> will be true if and only if <semver_version> and <semver_spec> represent the same semver version.
 
 Parameters:
-- **version** The version to be checked.
-> <semver_version> ::= <basic>[-<prerelease>][+<build_metadata>]
->   Each part follows [Semantic Versioning 2.0.0](https://semver.org/)
-- **spec** Cmake semver specification to be matched. Follows cmake ranges specification.
-> <semver_range> ::= <semver_spec>[(...|...<)<semver_spec>]
->  <semver_spec> ::= <basic_spec>[-<prerelease>][+<build_metadata>]
->   <basic_spec> ::= <number>[.<number>[.<number>]]
->     Every missing <number> is substituted by 0 to form a version <basic> version.
->     See [Semantic Versioning 2.0.0](https://semver.org/) for details.
-- **matches** True or false indicating if <version> matches <spec>.
-- **exact** True if <version> and <spec> represent same semver version.
+- **semver_version** The version to be checked.
+```
+<semver_version> ::= <basic>[-<pre_release>][+<build_metadata>]
+  Each part follows [Semantic Versioning 2.0.0](https://semver.org/)
+```
+- **semver_spec** Cmake semver specification to be matched. Follows cmake ranges specification.
+```
+<semver_range> ::= <semver_spec>[(...|...<)<semver_spec>]
+ <semver_spec> ::= <basic_spec>[-<pre_release>][+<build_metadata>]
+  <basic_spec> ::= <number>[.<number>[.<number>]]
+    Every missing <number> is substituted by 0 to form a version <basic> version.
+    See [Semantic Versioning 2.0.0](https://semver.org/) for details.
+```
+- **version_matches** True or false indicating if <semver_version> matches <semver_spec>.
+- **is_exact** True if <semver_version> and <semver_spec> represent same semver version.
 
 #### semver_toCMakeVersion()
-If receives a semver version then returns <base> part, else returns full version received.
+If receives a semver version then returns \<basic> part, else returns full version received.
 
 Parameters:
-- **version** A possibly semver version.
-- **version_cmake** <version> transformed to be compatible with CMake versions.
+- **semver_version** A possibly semver version.
+- **version_cmake** <semver_version> transformed to be compatible with CMake versions.
+
+#### semver_validToCMakeSpec()
+If receives a semver specification then returns a CMake compatible transformation of a version search specification 
+else an empty string is returned.
+
+Parameters:
+- **semver_spec** A possibly semver version specification (version range).
+- **spec_cmake** <semver_spec> transformed to be compatible with CMake version ranges when <semver_spec> is a valid semver specification
+or the empty string when <semver_spec> is not a semver valid specification.
