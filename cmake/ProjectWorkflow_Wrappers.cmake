@@ -63,31 +63,74 @@ endmacro()
 #               ONLY_CMAKE_FIND_ROOT_PATH |
 #               NO_CMAKE_FIND_ROOT_PATH])
 macro(find_package pkgName)
-    # We are only interested in version argument to support semver
-    # search for version on not positional arguments
-    set(haveSemverSpec_ False)
+    # We are only interested in version argument to support semver.
+    # Search for version on not positional arguments.
+    set(spec_ "")
     set(rest_ "")
     foreach(word_ ${ARGN})
-        if(haveSemverSpec_)
+        if(spec_)
             list(APPEND rest_ "${word_}")
         else()
             semver_validToCMakeSpec(${word_} specCmake_)
+            # if word_ is semver and also CMake, use it as CMake specification.
             if(specCmake_)
-                set(haveSemverSpec_ True)
-                set(semverSpec_ "${word_}")
+                if(NOT "${word_}" STREQUAL "${specCmake_}")
+                    set(semverSpec_ "${word_}")
+                    set(spec_ "${semverSpec_}")
+                else()
+                    set(spec_ "${specCmake_}")
+                endif()
             else()
                 list(APPEND rest_ "${word_}")
             endif()
         endif()
     endforeach()
+    # message(NOTICE "spec='${spec_}' '${semverSpec_}' => '${specCmake_}'")
 
-    if(haveSemverSpec_)
-        set(${pkgName}_FIND_SEMVER_VERSION "${semverSpec_}")
-        _find_package(${pkgName} ${specCmake_} ${rest_})
-    else()
-        _find_package(${pkgName} ${rest_})
+    # Check if pkgName was found and what version.
+    # If found, then preserve previous version.
+    if(${pkgName}_FOUND AND ${pkgName}_VERSION AND spec_)
+        semver_matches("${${pkgName}_VERSION}" "${spec_}" matches_ exact_)
+        if(matches_)
+            message(NOTICE "Found '${${pkgName}_VERSION}' matches '${spec_}'")
+            # No leak local variables
+            unsetall_(spec_ semverSpec_ rest_ word_ specCmake_ intersection_ matches_ exact_)
+            return()
+        else()
+            message(FATAL_ERROR "Previously found version '${${pkgName}_VERSION}' of package ${pkgName} is incompatible with '${spec_}'")
+        endif()
     endif()
 
+    if(NOT spec_)
+        _find_package(${pkgName} ${rest_})
+        # No leak local variables
+        unsetall_(spec_ semverSpec_ rest_ word_ specCmake_ intersection_ matches_ exact_)
+        return()
+    endif()
+
+    # ${pkgName}_FIND_SEMVER_VERSION could be set, maybe by another package CMake configuration file during find_package.
+    # If so both semver version specifications must be compatible and use their intersection.
+    if(NOT ${pkgName}_FIND_SEMVER_VERSION)
+        if(semverSpec_)
+            set(${pkgName}_FIND_SEMVER_VERSION "${semverSpec_}")
+        endif()
+    elseif(semverSpec_)
+        semver_specIntersection("${${pkgName}_FIND_SEMVER_VERSION}" "${semverSpec_}" intersection_)
+        if(intersection_)
+            message(NOTICE "Changing ${pkgName}_FIND_SEMVER_VERSION from '${${pkgName}_FIND_SEMVER_VERSION}' to '${intersection_}'")
+            set(${pkgName}_FIND_SEMVER_VERSION "${intersection_}")
+        else()
+            message(NOTICE "Previous ${pkgName}_FIND_SEMVER_VERSION=${${pkgName}_FIND_SEMVER_VERSION} incompatible with ${semverSpec_}")
+            # No leak local variables
+            unsetall_(spec_ semverSpec_ rest_ word_ specCmake_ intersection_ matches_ exact_)
+            return()
+        endif()
+    endif()
+
+    message("${pkgName}_FIND_SEMVER_VERSION=${${pkgName}_FIND_SEMVER_VERSION}")
+    message("_find_package(${pkgName} ${specCmake_} ${rest_})")
+    _find_package(${pkgName} ${specCmake_} ${rest_})
+
     # No leak local variables
-    unsetall_(haveSemverSpec_ semverSpec_ rest_ word_ specCmake_)
+    unsetall_(spec_ semverSpec_ rest_ word_ specCmake_ intersection_ matches_ exact_)
 endmacro()
