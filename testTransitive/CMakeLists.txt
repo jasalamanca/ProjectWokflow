@@ -2,14 +2,15 @@ cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
 # ProjectWorkflow cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
+include(ProjectWorkflow_Wrappers)
 
 project(PWTransitiveTest VERSION 0.0.2
     LANGUAGES C
     DESCRIPTION "Executable that consumes LIBB and transitively LIBA"
     HOMEPAGE_URL "https://github.com/jasalamanca/ProjectWokflow.git")
 
-set(LIBA_FIND_SEMVER_VERSION "1.2.3")
 find_package(LIBB 1.2.3 REQUIRED)
+# find_package(LIBA 1.2.0 REQUIRED) # uncomment to test unmatch between 0.0.0-rc0 and 1.2.0
 add_executable(TransitiveTest)
 target_sources(TransitiveTest
     PRIVATE

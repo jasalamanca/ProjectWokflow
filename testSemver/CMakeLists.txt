@@ -156,7 +156,7 @@ check_semver_preOrder_("17.0" "17.0" "0")
 
 
 function(check_semver_matches_ version spec checkMatch checkExact)
-    semver_maches("${version}" "${spec}" match_ exact_)
+    semver_matches("${version}" "${spec}" match_ exact_)
     if((NOT match_ AND checkMatch) OR (match_ AND NOT checkMatch))
         if(match_)
             message(FATAL_ERROR "'${version}' IN '${spec}' !!!")
@@ -178,6 +178,8 @@ check_semver_matches_("0.0.0" "0.0.0" TRUE TRUE)
 check_semver_matches_("0.0.0" "0...0" TRUE FALSE)
 check_semver_matches_("0.0.0" "0...<0" FALSE FALSE)
 check_semver_matches_("0.0.0" "0...<1" TRUE FALSE)
+
+check_semver_matches_("1.0.0" "0" FALSE FALSE)
 
 check_semver_matches_("1.0.0" "1" TRUE FALSE)
 check_semver_matches_("1.0.0" "1.0.0" TRUE TRUE)
@@ -216,3 +218,42 @@ check_semver_matches_("1.2.3-rc0.9" "1...<1.2-rc0.8" FALSE FALSE)
 check_semver_matches_("1.2.3-rc0.9" "1...<1.2-rc0.9" FALSE FALSE)
 check_semver_matches_("1.2.3-rc0.9" "1...1.2-rc0.9" FALSE FALSE)
 check_semver_matches_("1.2.3-rc0.9" "1...<1.2-rc0.10" FALSE FALSE)
+
+
+
+
+function(check_semver_validToCMakeSpec_ spec checkSpecCmake)
+    semver_validToCMakeSpec("${spec}" specCmake_)
+    if(NOT "${specCmake_}" STREQUAL "${checkSpecCmake}")
+        message(FATAL_ERROR "'${spec}' is transformed to '${specCmake_}' but '${checkSpecCmake}' !!!")
+    endif()
+endfunction()
+
+check_semver_validToCMakeSpec_("0" "0")
+check_semver_validToCMakeSpec_("1.2" "1.2")
+check_semver_validToCMakeSpec_("1.2.3" "1.2.3")
+check_semver_validToCMakeSpec_("1.2.3.4" "")
+check_semver_validToCMakeSpec_("1.2.3-rc0" "1.2.3")
+check_semver_validToCMakeSpec_("1.2.3+0000-" "1.2.3")
+check_semver_validToCMakeSpec_("1.2.3-rc0+0000-" "1.2.3")
+check_semver_validToCMakeSpec_("1.2.3-rc0.8...<2" "1.2.3...<2")
+check_semver_validToCMakeSpec_("1.2.3-rc0.8...2" "1.2.3...2")
+check_semver_validToCMakeSpec_("1.2.3-rc0.8...2+6frd" "1.2.3...2")
+
+
+
+function(check_semver_specIntersection_ spec1 spec2 checkInter)
+    semver_specIntersection("${spec1}" "${spec2}" specInter_)
+    if(NOT "${specInter_}" STREQUAL "${checkInter}")
+        message(FATAL_ERROR "'${spec1}'·'${spec2}'='${specInter_}' DIFFERS FROM '${checkInter}' !!!")
+    endif()
+endfunction()
+
+check_semver_specIntersection_("0" "0" "0")
+check_semver_specIntersection_("0" "1" "")
+check_semver_specIntersection_("1" "0" "")
+check_semver_specIntersection_("0" "0...1" "0")
+check_semver_specIntersection_("0...1" "0" "0.0.0...0.0.0")
+check_semver_specIntersection_("0.0" "0...1" "0.0")
+check_semver_specIntersection_("0.0.0" "0...1" "0.0.0")
+check_semver_specIntersection_("0...<1" "0...1" "0...<1")

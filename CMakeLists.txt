@@ -10,5 +10,6 @@ add_custom_target(PWSources SOURCES
     README.md
     LICENSE
     cmake/ProjectWorkflow.cmake
+    cmake/ProjectWorkflow_Wrappers.cmake
     cmake/semver.cmake
 )

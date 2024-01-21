@@ -56,16 +56,20 @@ include(\"\${CMAKE_CURRENT_LIST_DIR}/semver.cmake\")
 
 set(PACKAGE_VERSION \"${SV_VERSION}\")
 
-# Update PACKAGE_FIND_VERSION and PACKAGE_FIND_VERSION_COMPLETE for completeness
-set(PACKAGE_FIND_VERSION \"\${\${PACKAGE_FIND_NAME}_FIND_SEMVER_VERSION}\")
-set(PACKAGE_FIND_VERSION_COMPLETE \"\${\${PACKAGE_FIND_NAME}_FIND_SEMVER_VERSION}\")
+if(\${PACKAGE_FIND_NAME}_FIND_SEMVER_VERSION)
+    # Update PACKAGE_FIND_VERSION and PACKAGE_FIND_VERSION_COMPLETE for completeness
+    set(PACKAGE_FIND_VERSION \"\${\${PACKAGE_FIND_NAME}_FIND_SEMVER_VERSION}\")
+    set(PACKAGE_FIND_VERSION_COMPLETE \"\${\${PACKAGE_FIND_NAME}_FIND_SEMVER_VERSION}\")
+endif()
+
+#message(NOTICE \"'\${PACKAGE_VERSION}' in '\${PACKAGE_FIND_VERSION}'\")
 
 # Checking version
 if(NOT PACKAGE_FIND_VERSION)
     # If no version specified accept this one
     set(PACKAGE_VERSION_COMPATIBLE TRUE)
 else()
-    semver_maches(\${PACKAGE_VERSION} \${PACKAGE_FIND_VERSION} matches_ exact_)
+    semver_matches(\${PACKAGE_VERSION} \${PACKAGE_FIND_VERSION} matches_ exact_)
     if(PACKAGE_VERSION MATCHES [[^0\\..*]] AND NOT exact_)
         # If major version is 0 only exact search must be done.
         set(matches_ FALSE)
@@ -91,14 +95,21 @@ endif()
 file(WRITE ${filename} ${content_})
 endfunction()
 
+# Checks if semver <version> matches semver version specification <spec>.
+# Sets <matches> according to the check and <exact> will be true if and only if <version> and <spec> represent the same semver version.
+#
+# A semver version follows
+#  <semver_version> ::= <basic>[-<prerelease>][+<build_metadata>]
+#
+# A cmake semver specification follows cmake ranges specification
+#  <semver_range> ::= <semver_spec>[(...|...<)<semver_spec>]
+#   <semver_spec> ::= <basic_spec>[-<prerelease>][+<build_metadata>]
+#    <basic_spec> ::= <number>[.<number>[.<number>]]
+#      Every missing <number> is substituted by 0 to form a version <basic> version.
+function(semver_matches version spec matches exact)
+    set(${matches} FALSE PARENT_SCOPE)
+    set(${exact} FALSE PARENT_SCOPE)
 
-
-
-# Checks if version matches version specification.
-# A semver version follows <basic>[-<prerelease>][+<build_metadata>]
-# A cmake semver specification follows cmake ranges <semver_spec>[(...|...<)<semver_spec>]
-#   <semver_spec> ::=
-function(semver_maches version spec matches exact)
     semver_splitVersion_(${version} base_ pre_ build_ isValidVersion_)
     if (NOT isValidVersion_)
         message(AUTHOR_WARNING "\"${version}\" is an invalid semver version")
@@ -136,6 +147,145 @@ function(semver_maches version spec matches exact)
             set(${exact} TRUE PARENT_SCOPE)
         endif()
     endif()
+endfunction()
+
+# If receives a semver version then returns base part, else returns empty string.
+function(semver_validToCMakeVersion version versionCmake)
+    semver_splitVersion_(${version} base_ pre_ build_ valid_)
+    if(valid_)
+        set(${versionCmake} "${base_}" PARENT_SCOPE)
+    else()
+        set(${versionCmake} "" PARENT_SCOPE)
+    endif()
+endfunction()
+
+# If receives a semver specification then returns a CMake compatible transformation of this version search specification
+# else an empty string is returned.
+function(semver_validToCMakeSpec spec specCmake)
+    semver_splitSpec_(${spec} minBase_ minPre_ minBuild_ minClosed_ maxBase_ maxPre_ maxBuild_ maxClosed_ isValidSpec_)
+    if (isValidSpec_)
+        if(minBase_ STREQUAL maxBase_)
+            set(${specCmake} "${minBase_}" PARENT_SCOPE)
+        elseif(maxClosed_)
+            set(${specCmake} "${minBase_}...${maxBase_}" PARENT_SCOPE)
+        else()
+            set(${specCmake} "${minBase_}...<${maxBase_}" PARENT_SCOPE)
+        endif()
+    else()
+        set(${specCmake} "" PARENT_SCOPE)
+    endif()
+endfunction()
+
+# Receives 2 semver specifications and returns a new semver specification that is their intersection
+# or empty string if intersection does not exist.
+function(semver_specIntersection spec1 spec2 intersection)
+    semver_splitSpec_(${spec1} minBase1_ minPre1_ minBuild1_ minClosed1_ maxBase1_ maxPre1_ maxBuild1_ maxClosed1_ isValidSpec_)
+    if (NOT isValidSpec_)
+        message(NOTICE "${spec1} is not a semver version specification!!!")
+        set(${intersection} "" PARENT_SCOPE)
+        return()
+    endif()
+
+    semver_splitSpec_(${spec2} minBase2_ minPre2_ minBuild2_ minClosed2_ maxBase2_ maxPre2_ maxBuild2_ maxClosed2_ isValidSpec_)
+    if (NOT isValidSpec_)
+        message(NOTICE "${spec2} is not a semver version specification!!!")
+        set(${intersection} "" PARENT_SCOPE)
+        return()
+    endif()
+
+    semver_extendSpec_("${minBase1_}" "${minPre1_}" "${minBuild1_}" minVer1_)
+    semver_extendSpec_("${maxBase1_}" "${maxPre1_}" "${maxBuild1_}" maxVer1_)
+    semver_extendSpec_("${minBase2_}" "${minPre2_}" "${minBuild2_}" minVer2_)
+    semver_extendSpec_("${maxBase2_}" "${maxPre2_}" "${maxBuild2_}" maxVer2_)
+#    message(FATAL_ERROR "'${minVer1_}' '${maxVer1_}' '${minVer2_}' '${maxVer2_}' ")
+    semver_matches("${minVer1_}" "${spec2}" matches_ exact_)
+    if(matches_)
+        semver_matches("${maxVer1_}" "${spec2}" matches_ exact_)
+        if(matches_)
+            set(${intersection} "${spec1}" PARENT_SCOPE)
+            return()
+        else()
+            if(maxClosed2_)
+                set(${intersection} "${minVer1_}...${maxVer2_}" PARENT_SCOPE)
+            else()
+                set(${intersection} "${minVer1_}...<${maxVer2_}" PARENT_SCOPE)
+            endif()
+            return()
+        endif()
+    endif()
+
+    semver_matches("${maxVer1_}" "${spec2}" matches_ exact_)
+    if(matches_)
+        semver_matches("${minVer1_}" "${spec2}" matches_ exact_)
+        if(matches_)
+            set(${intersection} "${spec1}" PARENT_SCOPE)
+            return()
+        else()
+            if(maxClosed1_)
+                set(${intersection} "${minVer2_}...${maxVer1_}" PARENT_SCOPE)
+            else()
+                set(${intersection} "${minVer2_}...<${maxVer1_}" PARENT_SCOPE)
+            endif()
+            return()
+        endif()
+    endif()
+
+    semver_matches("${minVer2_}" "${spec1}" matches_ exact_)
+    if(matches_)
+        semver_matches("${maxVer2_}" "${spec1}" matches_ exact_)
+        if(matches_)
+            set(${intersection} "${spec2}" PARENT_SCOPE)
+            return()
+        else()
+            if(maxClosed1_)
+                set(${intersection} "${minVer2_}...${maxVer1_}" PARENT_SCOPE)
+            else()
+                set(${intersection} "${minVer2_}...<${maxVer1_}" PARENT_SCOPE)
+            endif()
+            return()
+        endif()
+    endif()
+
+    semver_matches("${maxVer2_}" "${spec1}" matches_ exact_)
+    if(matches_)
+        semver_matches("${minVer2_}" "${spec1}" matches_ exact_)
+        if(matches_)
+            set(${intersection} "${spec2}" PARENT_SCOPE)
+            return()
+        else()
+            if(maxClosed2_)
+                set(${intersection} "${minVer1_}...${maxVer2_}" PARENT_SCOPE)
+            else()
+                set(${intersection} "${minVer1_}...<${maxVer2_}" PARENT_SCOPE)
+            endif()
+            return()
+        endif()
+    endif()
+    set(${intersection} "" PARENT_SCOPE)
+endfunction()
+
+# 0 => 0.0.0
+# 0.1 => 0.1.0
+function(semver_extendBaseSpec_ base extended)
+    string(REGEX MATCH [[^(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))?)?$]] ignored_ "${base}")
+    if(NOT CMAKE_MATCH_3)
+        set(CMAKE_MATCH_3 "0")
+    endif()
+    if(NOT CMAKE_MATCH_5)
+        set(CMAKE_MATCH_5 "0")
+    endif()
+    set(${extended} "${CMAKE_MATCH_1}.${CMAKE_MATCH_3}.${CMAKE_MATCH_5}" PARENT_SCOPE)
+endfunction()
+
+function(semver_extendSpec_ base pre build extended)
+    semver_extendBaseSpec_("${base}" extended_)
+    if(pre)
+        set(extended_ "${extended_}-${pre}")
+    endif()
+    if(build)
+        set(extended_ "${extended_}+${build}")
+    endif()
+    set(${extended} "${extended_}" PARENT_SCOPE)
 endfunction()
 
 # Splits a semver version and check if it is valid.
