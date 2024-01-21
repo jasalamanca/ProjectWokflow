@@ -107,6 +107,9 @@ endfunction()
 #    <basic_spec> ::= <number>[.<number>[.<number>]]
 #      Every missing <number> is substituted by 0 to form a version <basic> version.
 function(semver_matches version spec matches exact)
+    set(${matches} FALSE PARENT_SCOPE)
+    set(${exact} FALSE PARENT_SCOPE)
+
     semver_splitVersion_(${version} base_ pre_ build_ isValidVersion_)
     if (NOT isValidVersion_)
         message(AUTHOR_WARNING "\"${version}\" is an invalid semver version")
