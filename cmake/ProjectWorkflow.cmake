@@ -56,11 +56,17 @@ endif()
 ")
 
 foreach(package_ ${transitivePackages_})
-    semver_toCMakeVersion(${${package_}_VERSION} version_cmake_)
-    string(APPEND content_
+    semver_validToCMakeVersion(${${package_}_VERSION} versionCmake_)
+    if(versionCmake_ AND NOT "${${package_}_VERSION}" STREQUAL "${versionCmake_}")
+        string(APPEND content_
 "set(${package_}_FIND_SEMVER_VERSION ${${package_}_VERSION})
-find_package(${package_} ${version_cmake_} REQUIRED \${quiet_})
+find_package(${package_} \"${versionCmake_}\" REQUIRED \${quiet_})
 ")
+    else()
+        string(APPEND content_
+"find_package(${package_} \"${${package_}_VERSION}\" REQUIRED \${quiet_})
+")
+    endif()
 endforeach()
 endif()
 
