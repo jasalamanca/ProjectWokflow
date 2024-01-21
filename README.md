@@ -166,14 +166,19 @@ semver_write_version_config(<filename>
 semver_matches(<semver_version> <semver_spec> <version_matches> <is_exact>)
 ```
 
-[semver_toCMakeVersion](#semver_toCMakeVersion)
+[semver_validToCMakeVersion](#semver_validToCMakeVersion)
 ```cmake
-semver_toCMakeVersion(<semver_version> <version_cmake>)
+semver_validToCMakeVersion(<semver_version> <version_cmake>)
 ```
 
 [semver_validToCMakeSpec](#semver_validToCMakeSpec)
 ```cmake
 semver_validToCMakeSpec(<semver_spec> <spec_cmake>)
+```
+
+[semver_specIntersection](#semver_specIntersection)
+```cmake
+semver_specIntersection(<semver_spec1> <semver_spec2> <semver_spec_intersection>)
 ```
 
 #### semver_write_version_config()
@@ -205,8 +210,8 @@ Parameters:
   - **version_matches** True or false indicating if <semver_version> matches <semver_spec>.
   - **is_exact** True if <semver_version> and <semver_spec> represent same semver version.
 
-#### semver_toCMakeVersion()
-If receives a semver version then returns \<basic> part, else returns full version received.
+#### semver_validToCMakeVersion()
+If receives a semver version then returns \<basic> part, else returns empty string.
 
 Parameters:
   - **semver_version** A possibly semver version.
@@ -220,3 +225,12 @@ Parameters:
   - **semver_spec** A possibly semver version specification (version range).
   - **spec_cmake** <semver_spec> transformed to be compatible with CMake version ranges when <semver_spec> is a valid semver specification
 or the empty string when <semver_spec> is not a semver valid specification.
+
+#### semver_specIntersection()
+Receives 2 semver specifications and returns a new semver specification that is their intersection
+or empty string if intersection does not exist.
+
+Parameters:
+  - **<semver_spec1>** First semver version specification.
+  - **<semver_spec2>** Second semver version specification.
+  - **<semver_spec_intersection>** Semver version specification for intersection or empty string if intersection is empty.

@@ -179,6 +179,8 @@ check_semver_matches_("0.0.0" "0...0" TRUE FALSE)
 check_semver_matches_("0.0.0" "0...<0" FALSE FALSE)
 check_semver_matches_("0.0.0" "0...<1" TRUE FALSE)
 
+check_semver_matches_("1.0.0" "0" FALSE FALSE)
+
 check_semver_matches_("1.0.0" "1" TRUE FALSE)
 check_semver_matches_("1.0.0" "1.0.0" TRUE TRUE)
 check_semver_matches_("1.0.0" "1...1" TRUE FALSE)
@@ -237,3 +239,21 @@ check_semver_validToCMakeSpec_("1.2.3-rc0+0000-" "1.2.3")
 check_semver_validToCMakeSpec_("1.2.3-rc0.8...<2" "1.2.3...<2")
 check_semver_validToCMakeSpec_("1.2.3-rc0.8...2" "1.2.3...2")
 check_semver_validToCMakeSpec_("1.2.3-rc0.8...2+6frd" "1.2.3...2")
+
+
+
+function(check_semver_specIntersection_ spec1 spec2 checkInter)
+    semver_specIntersection("${spec1}" "${spec2}" specInter_)
+    if(NOT "${specInter_}" STREQUAL "${checkInter}")
+        message(FATAL_ERROR "'${spec1}'·'${spec2}'='${specInter_}' DIFFERS FROM '${checkInter}' !!!")
+    endif()
+endfunction()
+
+check_semver_specIntersection_("0" "0" "0")
+check_semver_specIntersection_("0" "1" "")
+check_semver_specIntersection_("1" "0" "")
+check_semver_specIntersection_("0" "0...1" "0")
+check_semver_specIntersection_("0...1" "0" "0.0.0...0.0.0")
+check_semver_specIntersection_("0.0" "0...1" "0.0")
+check_semver_specIntersection_("0.0.0" "0...1" "0.0.0")
+check_semver_specIntersection_("0...<1" "0...1" "0...<1")
