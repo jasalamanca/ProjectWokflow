@@ -17,7 +17,7 @@ endmacro()
 function(write_config_in_ filename_)
     set(options_ )
     set(oneValueArgs_ PACKAGE)
-    set(multiValueArgs_ EXPORTS PACKAGES)
+    set(multiValueArgs_ EXPORTS EXTERNAL_EXPORTS PACKAGES)
     cmake_parse_arguments(PWI "${options_}" "${oneValueArgs_}" "${multiValueArgs_}" ${ARGN})
 
     foreach(package_ ${PWI_PACKAGES})
@@ -70,12 +70,13 @@ find_package(${package_} \"${versionCmake_}\" REQUIRED \${quiet_})
 endforeach()
 endif()
 
-if(PWI_EXPORTS)
+if(PWI_EXPORTS OR PWI_EXTERNAL_EXPORTS)
     string(APPEND content_
 "
 
 # Include all exported targets
-foreach(export_ ${PWI_EXPORTS})
+# Also targets not managed with install(TARGETS) like add_jar
+foreach(export_ ${PWI_EXPORTS} ${PWI_EXTERNAL_EXPORTS})
     set(export_filename_ \"\${CMAKE_CURRENT_LIST_DIR}/\${export_}.cmake\")
     if(EXISTS \${export_filename_})
         include(\"\${CMAKE_CURRENT_LIST_DIR}/\${export_}.cmake\")
@@ -84,11 +85,15 @@ foreach(export_ ${PWI_EXPORTS})
         message(FATAL_ERROR \"Mandatory file \${export_filename_only_} for ${PWI_PACKAGE} package does not exists!\")
     endif()
 endforeach()
+")
+endif()
+
+string(APPEND content_
+"
 
 # Check all components found
 check_required_components(${PWI_PACKAGE})
 ")
-endif()
 
     file(WRITE ${filename_} ${content_})
 endfunction()
@@ -97,7 +102,7 @@ endfunction()
 function(PW_install)
     set(options_ )
     set(oneValueArgs_ PACKAGE VERSION NAMESPACE COMPATIBILITY)
-    set(multiValueArgs_ EXPORTS PACKAGES)
+    set(multiValueArgs_ EXPORTS EXTERNAL_EXPORTS PACKAGES)
     cmake_parse_arguments(PWI "${options_}" "${oneValueArgs_}" "${multiValueArgs_}" ${ARGN})
 
     if (PWI_UNPARSED_ARGUMENTS)
@@ -108,8 +113,8 @@ function(PW_install)
         message(FATAL_ERROR "PW_install without package name")
     endif()
 
-    if (NOT PWI_EXPORTS)
-        message(AUTHOR_WARNING "PW_install without exports")
+    if (NOT PWI_EXPORTS AND NOT PWI_EXTERNAL_EXPORTS)
+        message(AUTHOR_WARNING "PW_install without exports or external exports")
     endif()
 
     if (NOT PWI_COMPATIBILITY)
