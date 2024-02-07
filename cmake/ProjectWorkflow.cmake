@@ -106,7 +106,7 @@ endfunction()
 # Install a simple package config file, it version file and all the exports and targets
 function(PW_install)
     set(options_ )
-    set(oneValueArgs_ PACKAGE VERSION NAMESPACE COMPATIBILITY)
+    set(oneValueArgs_ PACKAGE VERSION NAMESPACE COMPATIBILITY COMPONENT)
     set(multiValueArgs_ EXPORTS EXTERNAL_EXPORTS PACKAGES)
     cmake_parse_arguments(PWI "${options_}" "${oneValueArgs_}" "${multiValueArgs_}" ${ARGN})
 
@@ -137,7 +137,9 @@ function(PW_install)
         install(EXPORT ${export_}
             FILE ${export_}.cmake
             NAMESPACE ${packageNamespace_}
-            DESTINATION "${INSTALL_CMAKEDIR_}")
+            DESTINATION "${INSTALL_CMAKEDIR_}"
+            COMPONENT "${PWI_COMPONENT}"
+        )
     endforeach()
 
     set(config_file_ "${CMAKE_CURRENT_BINARY_DIR}/${PWI_PACKAGE}Config.cmake")
@@ -161,5 +163,7 @@ function(PW_install)
     endif()
 
     install(FILES "${config_file_}" ${version_files_}
-        DESTINATION "${INSTALL_CMAKEDIR_}")
+        DESTINATION "${INSTALL_CMAKEDIR_}"
+        COMPONENT "${PWI_COMPONENT}"
+    )
 endfunction()
