@@ -52,6 +52,7 @@ PW_install(
     [VERSION <version>]
     [COMPATIBILITY (Semver|AnyNewerVersion|SameMajorVersion|SameMinorVersion|ExactVersion)]
     [NAMESPACE <namespace>]
+    [COMPONENT <component_name>]
     [EXPORTS <export_name> ... ]
     [EXTERNAL_EXPORTS <export_name> ... ]
     [PACKAGES <pkg_name> ... ])
@@ -98,6 +99,7 @@ Parameters:
   The rest are supported by *write_basic_package_version_file*.
 
   - **NAMESPACE** Sets package namespace. If not set, *<pkg_name>::* is used.
+  - **COMPONENT** Sets component for export, config and version files. All in same component.
   - **EXPORTS** For each <export_name> indicated, a target export file is generated and is included with the necessary path.
   - **EXTERNAL_EXPORTS** For each <export_name> indicated, a target export file is assumed to exist and is included with the necessary path.
   - **PACKAGES** For each <pkg_name> indicated, a *find_package* is included in configuration file, with necessary parameters.
