@@ -2,6 +2,11 @@ include_guard(GLOBAL)
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
 include(GNUInstallDirs)
+# Prepare CMake scripts destination
+# From GnuInstallDirs
+set(PW_INSTALL_CMAKEROOTDIR "${CMAKE_INSTALL_LIBDIR}/cmake")
+set(PW_INSTALL_NOARCH_CMAKEROOTDIR "${CMAKE_INSTALL_DATAROOTDIR}/cmake")
+
 include(CMakePackageConfigHelpers)
 include(semver)
 
@@ -125,16 +130,14 @@ function(PW_install)
     set_or_default_(packageVersion_ PWI_VERSION "${${PROJECT_NAME}_VERSION}")
     set_or_default_(packageNamespace_ PWI_NAMESPACE "${PWI_PACKAGE}::")
 
-    # Prepare cmake scripts destination
-    # From GnuInstallDirs
-    set(PW_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/${PWI_PACKAGE}")
-    message(TRACE "Writing to ${PW_INSTALL_CMAKEDIR}")
+    set(INSTALL_CMAKEDIR_ "${PW_INSTALL_CMAKEROOTDIR}/${PWI_PACKAGE}")
+    message("Writing to ${INSTALL_CMAKEDIR_}")
 
     foreach(export_ ${PWI_EXPORTS})
         install(EXPORT ${export_}
             FILE ${export_}.cmake
             NAMESPACE ${packageNamespace_}
-            DESTINATION ${PW_INSTALL_CMAKEDIR})
+            DESTINATION "${INSTALL_CMAKEDIR_}")
     endforeach()
 
     set(config_file_ "${CMAKE_CURRENT_BINARY_DIR}/${PWI_PACKAGE}Config.cmake")
@@ -142,7 +145,7 @@ function(PW_install)
 
     write_config_in_(${config_file_in_} ${ARGN})
     configure_package_config_file(${config_file_in_} ${config_file_}
-        INSTALL_DESTINATION ${PW_INSTALL_CMAKEDIR})
+        INSTALL_DESTINATION "${INSTALL_CMAKEDIR_}")
 
     set(config_version_file_ "${CMAKE_CURRENT_BINARY_DIR}/${PWI_PACKAGE}ConfigVersion.cmake")
     if("Semver" STREQUAL PWI_COMPATIBILITY)
@@ -158,5 +161,5 @@ function(PW_install)
     endif()
 
     install(FILES "${config_file_}" ${version_files_}
-        DESTINATION ${PW_INSTALL_CMAKEDIR})
+        DESTINATION "${INSTALL_CMAKEDIR_}")
 endfunction()
