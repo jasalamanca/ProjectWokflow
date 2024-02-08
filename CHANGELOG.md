@@ -2,13 +2,19 @@
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] - 2024-02-08
+Bugfixes and little improvements.
+
 ### Added
-  - [semver] New installation variables.
+  - [pw] New installation variables.
     - **PW_INSTALL_CMAKEROOTDIR** as base to install architecture dependent cmake configuration files.
     - **PW_INSTALL_NOARCH_CMAKEROOTDIR** as base to install architecture independent cmake configuration files.
+  - [pw] PW_install admits COMPONENT to be applied to all exports and configuration files.
     
 ### Changed
-  - [semver] Path where package configuration files are installed. Now is 'PW_INSTALL_CMAKEROOTDIR/<pkg_name>'
+  - [pw] Path where package configuration files are installed. Now is 'PW_INSTALL_CMAKEROOTDIR/<pkg_name>'
   
 ### Fixed
   - [wrap] find_package command wrapper.
