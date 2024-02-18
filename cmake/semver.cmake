@@ -151,7 +151,7 @@ endfunction()
 
 # If receives a semver version then returns base part, else returns empty string.
 function(semver_validToCMakeVersion version versionCmake)
-    semver_splitVersion_(${version} base_ pre_ build_ valid_)
+    semver_splitVersion_("${version}" base_ pre_ build_ valid_)
     if(valid_)
         set(${versionCmake} "${base_}" PARENT_SCOPE)
     else()
