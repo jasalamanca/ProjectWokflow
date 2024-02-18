@@ -24,9 +24,13 @@ target_link_libraries(b PRIVATE LIBA::a)
 install(TARGETS b EXPORT B
     FILE_SET HEADERS)
 
+# To test with no PW/semver packages
+find_package(OpenSSL REQUIRED)
+target_link_libraries(b PRIVATE OpenSSL::SSL)
+
 PW_install(PACKAGE LIBB
     EXPORTS B
-    PACKAGES LIBA)
+    PACKAGES LIBA OpenSSL)
 
 include(FeatureSummary)
 message(NOTICE "\nFEATURE SUMMARY\n--------------------------")
