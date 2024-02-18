@@ -4,6 +4,14 @@
 
 ---
 
+## [0.2.1] - 2024-02-18
+Bugfixes for transitive package propagation.
+
+### Fixed
+  - [pw] Trnasitive propagation of packages when not a PW or semver package.
+
+---
+
 ## [0.2.0] - 2024-02-08
 Bugfixes and little improvements.
 
